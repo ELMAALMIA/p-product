@@ -1,0 +1,9 @@
+target/
+*.class
+*.jar
+*.war
+.git/
+.gitignore
+.env
+*.md
+docker/
