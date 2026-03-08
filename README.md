@@ -13,7 +13,7 @@ A RESTful API for product management built with **Spring Boot 3**, secured with 
 - [Authentication](#authentication)
 - [API Endpoints](#api-endpoints)
 - [Running Tests](#running-tests)
-- [Project Structure](#project-structure)
+- [Email Notifications](#email-notifications)
 - [Environment Variables](#environment-variables)
 
 ---
@@ -104,8 +104,18 @@ Once the application is running, access the interactive API documentation:
 
 ### Swagger UI Preview
 
-
+#### All Endpoints Overview
 ![Swagger UI](docs/swagger-ui.png)
+
+#### Auth Endpoints – Login Example
+![Auth Endpoints](docs/swagger-auth.png)
+
+#### Product Endpoints – Create Product (Base64 Image)
+![Product Endpoints](docs/swagger-products.png)
+#### Product Endpoints – Create Product (Multipart Image Upload)
+![Product Endpoints](docs/swagger-products-v2.png)
+
+
 
 ---
 
@@ -275,6 +285,17 @@ mvn test -Dtest="*Integration*"
 Tests use **H2 in-memory database** and a separate `application-test.properties` profile.
 
 ---
+
+## Email Notifications
+
+The API sends **asynchronous email notifications** when products are created or deleted, using a **Spring event-driven architecture**.
+**Flow:**
+
+```
+Controller -> Service -> DB commit -> Event fired -> [Async] Listener -> EmailService -> SMTP
+```
+
+![email Event](docs/email-event-created-product.png)
 
 ---
 
