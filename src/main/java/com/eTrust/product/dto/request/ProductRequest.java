@@ -1,6 +1,6 @@
 package com.eTrust.product.dto.request;
 
-import com.eTrust.product.model.InventoryStatus;
+import com.eTrust.product.entity.InventoryStatus;
 import jakarta.validation.constraints.*;
 
 
@@ -44,9 +44,6 @@ public record ProductRequest(
         Double rating
 
 ) {
-    /**
-     * Compact constructor — sets defaults for optional fields.
-     */
     public ProductRequest {
         if (inventoryStatus == null) inventoryStatus = InventoryStatus.INSTOCK;
         if (rating == null) rating = 0.0;

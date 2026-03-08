@@ -2,6 +2,7 @@ package com.eTrust.product.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +27,11 @@ public class GlobalExceptionHandler {
                 fieldErrors.put(((FieldError) error).getField(), error.getDefaultMessage())
         );
         return build(HttpStatus.BAD_REQUEST, "Validation failed", fieldErrors);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
+        return build(HttpStatus.FORBIDDEN, "Bad credentials", null);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

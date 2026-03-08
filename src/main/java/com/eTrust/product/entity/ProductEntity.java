@@ -1,6 +1,5 @@
 package com.eTrust.product.entity;
 
-import com.eTrust.product.model.InventoryStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;

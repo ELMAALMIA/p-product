@@ -2,50 +2,42 @@ package com.eTrust.product.service.impl;
 
 import com.eTrust.product.dto.request.ProductRequest;
 import com.eTrust.product.dto.response.ProductResponse;
+import com.eTrust.product.entity.ProductEntity;
 import com.eTrust.product.event.ProductCreatedEvent;
 import com.eTrust.product.event.ProductDeletedEvent;
 import com.eTrust.product.exception.ResourceNotFoundException;
-import com.eTrust.product.factory.ProductFactory;
 import com.eTrust.product.mapper.ProductMapper;
-import com.eTrust.product.model.InventoryStatus;
-import com.eTrust.product.model.Product;
+import com.eTrust.product.entity.InventoryStatus;
 import com.eTrust.product.repository.ProductRepository;
 import com.eTrust.product.service.ProductService;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
-/**
- * Core business logic — orchestrates factory → repository → mapper → events.
- * Does NOT handle validation (delegated to ValidatedProductService decorator).
- */
 @Service
+@Primary
 public class ProductServiceImpl implements ProductService {
 
     private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     private final ProductRepository repository;
     private final ProductMapper mapper;
-    private final ProductFactory factory;
     private final ApplicationEventPublisher eventPublisher;
 
     public ProductServiceImpl(ProductRepository repository,
-                               ProductMapper mapper,
-                               ProductFactory factory,
-                               ApplicationEventPublisher eventPublisher) {
+                              ProductMapper mapper,
+                              ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.mapper = mapper;
-        this.factory = factory;
         this.eventPublisher = eventPublisher;
     }
 
@@ -53,7 +45,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponse create(ProductRequest request) {
         ensureCodeUnique(request.code(), null);
-        Product saved = repository.save(factory.createFrom(request));
+        ProductEntity entity = mapper.toEntity(request);
+        entity.setInternalReference(generateReference());
+        ProductEntity saved = repository.save(entity);
         eventPublisher.publishEvent(new ProductCreatedEvent(this, saved));
         log.info("Product created id={}", saved.getId());
         return mapper.toResponse(saved);
@@ -75,13 +69,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
-        Product existing = getOrThrow(id);
+        ProductEntity existing = getOrThrow(id);
         if (!existing.getCode().equals(request.code())) {
             ensureCodeUnique(request.code(), id);
         }
-        mapper.updateDomainFromRequest(request, existing);
-        existing.setUpdatedAt(Instant.now().getEpochSecond());
-        Product updated = repository.save(existing);
+        mapper.updateEntityFromRequest(request, existing);
+        ProductEntity updated = repository.save(existing);
         log.info("Product updated id={}", id);
         return mapper.toResponse(updated);
     }
@@ -98,14 +91,30 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse createWithFile(ProductRequest request, MultipartFile image) throws IOException {
+        validateImageFile(image);
+        ensureCodeUnique(request.code(), null);
         String base64 = "data:" + image.getContentType() + ";base64,"
                 + Base64.getEncoder().encodeToString(image.getBytes());
-        Product saved = repository.save(factory.createFrom(request, base64));
+        ProductEntity entity = mapper.toEntity(request);
+        entity.setImage(base64);
+        entity.setInternalReference(generateReference());
+        ProductEntity saved = repository.save(entity);
         eventPublisher.publishEvent(new ProductCreatedEvent(this, saved));
         return mapper.toResponse(saved);
     }
 
-    private Product getOrThrow(Long id) {
+    private String generateReference() {
+        return "REF-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+    }
+
+    private void validateImageFile(MultipartFile image) {
+        if (image == null || image.isEmpty())
+            throw new IllegalArgumentException("Image file is required");
+        if (image.getSize() > 100 * 1024L)
+            throw new IllegalArgumentException("Image must be less than 100KB");
+    }
+
+    private ProductEntity getOrThrow(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id));
     }

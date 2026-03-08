@@ -15,7 +15,7 @@
     <artifactId>product</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>product</name>
-    <description>Product Management Service — Layered Architecture + Design Patterns</description>
+    <description>Product Management Service</description>
 
     <properties>
         <java.version>17</java.version>
@@ -57,6 +57,7 @@
         </dependency>
 
 
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -91,6 +92,11 @@
 
 
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -100,6 +106,7 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+
 
     </dependencies>
 

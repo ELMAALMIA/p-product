@@ -1,22 +1,27 @@
 package com.eTrust.product.repository;
 
-import com.eTrust.product.model.InventoryStatus;
-import com.eTrust.product.model.Product;
+import com.eTrust.product.entity.ProductEntity;
+import com.eTrust.product.entity.InventoryStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repository pattern — domain contract.
- * Service depends on this interface only. DB is a swappable detail.
- */
-public interface ProductRepository {
-    Product save(Product product);
-    Optional<Product> findById(Long id);
-    Optional<Product> findByCode(String code);
-    boolean existsById(Long id);
+public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
+
+    Optional<ProductEntity> findByCode(String code);
+
     boolean existsByCode(String code);
-    List<Product> findAll();
-    List<Product> findByFilters(InventoryStatus status, String category);
-    void deleteById(Long id);
+
+    @Query("""
+            SELECT p FROM ProductEntity p
+            WHERE (:status IS NULL OR p.inventoryStatus = :status)
+            AND (:category IS NULL OR p.category = :category)
+            """)
+    List<ProductEntity> findByFilters(
+            @Param("status") InventoryStatus status,
+            @Param("category") String category
+    );
 }

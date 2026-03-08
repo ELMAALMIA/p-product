@@ -1,12 +1,12 @@
 package com.eTrust.product.dto.response;
 
 public record TokenResponse(
-        String token,
+        String accessToken,
+        String refreshToken,
         String type,
         long expiresIn
 ) {
-
-    public TokenResponse(String token, long expiresIn) {
-        this(token, "Bearer", expiresIn);
+    public TokenResponse(String accessToken, String refreshToken, long expiresIn) {
+        this(accessToken, refreshToken, "Bearer", expiresIn);
     }
 }

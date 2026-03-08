@@ -2,9 +2,10 @@ package com.eTrust.product.controller;
 
 import com.eTrust.product.dto.request.ProductRequest;
 import com.eTrust.product.dto.response.ProductResponse;
-import com.eTrust.product.model.InventoryStatus;
+import com.eTrust.product.entity.InventoryStatus;
 import com.eTrust.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -13,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import io.swagger.v3.oas.annotations.media.Content;
+
 
 import java.io.IOException;
 import java.util.List;
@@ -64,11 +67,24 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = " Create product with multipart image upload (Bonus)")
+    @Operation(
+            summary = "Create product with multipart image upload",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            encoding = {
+                                    @Encoding(name = "product", contentType = "application/json"),
+                                    @Encoding(name = "image", contentType = "image/*")
+                            }
+                    )
+            )
+    )
     @PostMapping(value = "/v2", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductResponse> createWithFile(
-             @RequestPart("product") ProductRequest request,
-            @RequestPart("image") MultipartFile image) throws IOException {
+            @RequestPart("product") ProductRequest request,
+            @RequestPart("image") MultipartFile image
+    ) throws IOException {
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.createWithFile(request, image));
     }

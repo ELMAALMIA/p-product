@@ -4,11 +4,11 @@ FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
 
 # Copy pom.xml first — leverages Docker layer caching for dependencies
-COPY ../../Desktop/frelance-app/Cgedim/product/product/pom.xml .
+COPY ./product/pom.xml .
 RUN mvn dependency:go-offline -q
 
 # Copy source and build
-COPY ../../Desktop/frelance-app/Cgedim/product/product/src ./src
+COPY ./product/src ./src
 RUN mvn clean package -DskipTests -q
 
 # ─── Stage 2: Run ─────────────────────────────────────────────────────────────

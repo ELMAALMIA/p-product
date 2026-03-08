@@ -4,12 +4,11 @@ package com.eTrust.product.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 @MappedSuperclass
 @EntityListeners({AuditingEntityListener.class})
 public abstract class BaseAuditableEntity {
@@ -19,26 +18,26 @@ public abstract class BaseAuditableEntity {
             nullable = false,
             updatable = false
     )
-    private Long createdAt;
+    private Instant createdAt;
     @LastModifiedDate
     @Column(
             name = "updated_at"
     )
-    private Long updatedAt;
+    private Instant updatedAt;
 
-    public Long getCreatedAt() {
+    public Instant getCreatedAt() {
         return this.createdAt;
     }
 
-    public void setCreatedAt(Long createdDate) {
+    public void setCreatedAt(Instant createdDate) {
         this.createdAt = createdDate;
     }
 
-    public Long getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return this.updatedAt;
     }
 
-    public void setUpdatedAt(Long lastModifiedDate) {
+    public void setUpdatedAt(Instant lastModifiedDate) {
         this.updatedAt = lastModifiedDate;
     }
 }

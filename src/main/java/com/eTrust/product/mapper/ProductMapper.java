@@ -2,7 +2,7 @@ package com.eTrust.product.mapper;
 
 import com.eTrust.product.dto.request.ProductRequest;
 import com.eTrust.product.dto.response.ProductResponse;
-import com.eTrust.product.model.Product;
+import com.eTrust.product.entity.ProductEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -15,32 +15,30 @@ public class ProductMapper {
         this.modelMapper = modelMapper;
     }
 
-    public Product toDomain(ProductRequest request) {
-        return modelMapper.map(request, Product.class);
+    public ProductEntity toEntity(ProductRequest request) {
+        return modelMapper.map(request, ProductEntity.class);
     }
 
-
-    public ProductResponse toResponse(Product p) {
+    public ProductResponse toResponse(ProductEntity e) {
         return new ProductResponse(
-                p.getId(),
-                p.getCode(),
-                p.getName(),
-                p.getDescription(),
-                p.getImage(),
-                p.getCategory(),
-                p.getPrice(),
-                p.getQuantity(),
-                p.getInternalReference(),
-                p.getShellId(),
-                p.getInventoryStatus(),
-                p.getRating(),
-                p.getCreatedAt(),
-                p.getUpdatedAt()
+                e.getId(),
+                e.getCode(),
+                e.getName(),
+                e.getDescription(),
+                e.getImage(),
+                e.getCategory(),
+                e.getPrice(),
+                e.getQuantity(),
+                e.getInternalReference(),
+                e.getShellId(),
+                e.getInventoryStatus(),
+                e.getRating(),
+                e.getCreatedAt() != null ? e.getCreatedAt().toEpochMilli() : null,
+                e.getUpdatedAt() != null ? e.getUpdatedAt().toEpochMilli() : null
         );
     }
 
-
-    public void updateDomainFromRequest(ProductRequest request, Product product) {
-        modelMapper.map(request, product);
+    public void updateEntityFromRequest(ProductRequest request, ProductEntity entity) {
+        modelMapper.map(request, entity);
     }
 }

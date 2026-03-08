@@ -1,13 +1,17 @@
 package com.eTrust.product.event;
 
-import com.eTrust.product.model.Product;
+
 import org.springframework.context.ApplicationEvent;
+import com.eTrust.product.entity.ProductEntity;
 
 public class ProductCreatedEvent extends ApplicationEvent {
-    private final Product product;
-    public ProductCreatedEvent(Object source, Product product) {
+
+    private final ProductEntity product;
+
+    public ProductCreatedEvent(Object source, ProductEntity product) {
         super(source);
         this.product = product;
     }
-    public Product getProduct() { return product; }
+
+    public ProductEntity getProduct() { return product; }
 }

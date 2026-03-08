@@ -2,7 +2,7 @@ package com.eTrust.product.service;
 
 import com.eTrust.product.dto.request.ProductRequest;
 import com.eTrust.product.dto.response.ProductResponse;
-import com.eTrust.product.model.InventoryStatus;
+import com.eTrust.product.entity.InventoryStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
