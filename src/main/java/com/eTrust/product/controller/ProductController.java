@@ -2,7 +2,7 @@ package com.eTrust.product.controller;
 
 import com.eTrust.product.dto.request.ProductRequest;
 import com.eTrust.product.dto.response.ProductResponse;
-import com.eTrust.product.enums.InventoryStatus;
+import com.eTrust.product.model.InventoryStatus;
 import com.eTrust.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -64,5 +64,12 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @Operation(summary = " Create product with multipart image upload (Bonus)")
+    @PostMapping(value = "/v2", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> createWithFile(
+             @RequestPart("product") ProductRequest request,
+            @RequestPart("image") MultipartFile image) throws IOException {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(productService.createWithFile(request, image));
+    }
 }

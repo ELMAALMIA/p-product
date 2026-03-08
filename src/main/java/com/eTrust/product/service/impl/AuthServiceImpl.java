@@ -34,4 +34,9 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtService.generateToken(user);
         return new TokenResponse(token, jwtService.getExpirationTime());
     }
+
+    @Override
+    public void logout(String token) {
+
+    }
 }

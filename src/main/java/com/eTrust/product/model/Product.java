@@ -1,7 +1,5 @@
 package com.eTrust.product.model;
 
-import com.eTrust.product.enums.InventoryStatus;
-
 public class Product {
 
     private Long id;

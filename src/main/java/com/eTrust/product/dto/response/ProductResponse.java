@@ -1,6 +1,6 @@
 package com.eTrust.product.dto.response;
 
-import com.eTrust.product.enums.InventoryStatus;
+import com.eTrust.product.model.InventoryStatus;
 
 public record ProductResponse(
         Long id,

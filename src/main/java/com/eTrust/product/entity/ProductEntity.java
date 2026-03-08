@@ -1,12 +1,19 @@
-package com.eTrust.product.dao;
+package com.eTrust.product.entity;
 
-import com.eTrust.product.enums.InventoryStatus;
-import jakarta.persistence.*;
-import java.time.Instant;
+import com.eTrust.product.model.InventoryStatus;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.EnumType;
+
 
 @Entity
 @Table(name = "products")
-public class ProductEntity {
+public class ProductEntity extends BaseAuditableEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,23 +51,7 @@ private String category;
 
     private Double rating = 0.0;
 
-    @Column(nullable = false, updatable = false)
-    private Long createdAt;
 
-    @Column(nullable = false)
-    private Long updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        long now = Instant.now().getEpochSecond();
-        this.createdAt = now;
-        this.updatedAt = now;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now().getEpochSecond();
-    }
 
     public ProductEntity() {}
 
@@ -100,9 +91,4 @@ private String category;
     public Double getRating() { return rating; }
     public void setRating(Double rating) { this.rating = rating; }
 
-    public Long getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Long createdAt) { this.createdAt = createdAt; }
-
-    public Long getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Long updatedAt) { this.updatedAt = updatedAt; }
 }

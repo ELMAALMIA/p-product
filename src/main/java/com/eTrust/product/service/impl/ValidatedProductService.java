@@ -2,7 +2,7 @@ package com.eTrust.product.service.impl;
 
 import com.eTrust.product.dto.request.ProductRequest;
 import com.eTrust.product.dto.response.ProductResponse;
-import com.eTrust.product.enums.InventoryStatus;
+import com.eTrust.product.model.InventoryStatus;
 import com.eTrust.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
@@ -24,7 +24,7 @@ public class ValidatedProductService implements ProductService {
 
     private final ProductService delegate;
 
-    public ValidatedProductService(@Qualifier("productServiceImpl") ProductService delegate) {
+    public ValidatedProductService( @Qualifier("productServiceImpl") ProductService delegate) {
         this.delegate = delegate;
     }
 
@@ -55,7 +55,14 @@ public class ValidatedProductService implements ProductService {
         delegate.delete(id);
     }
 
-
+    @Override
+    public ProductResponse createWithFile(ProductRequest request, MultipartFile image) throws IOException {
+        if (image == null || image.isEmpty())
+            throw new IllegalArgumentException("Image file is required");
+        if (image.getSize() > MAX_IMAGE_BYTES)
+            throw new IllegalArgumentException("Image must be less than 100KB");
+        return delegate.createWithFile(request, image);
+    }
 
     private void validateBase64Image(String base64Image) {
         if (base64Image == null || base64Image.isBlank()) return;

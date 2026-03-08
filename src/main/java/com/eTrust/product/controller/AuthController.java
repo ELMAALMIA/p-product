@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@Tag(name = "Authentication", description = "Login — credentials: admin/admin123 or user/user123")
+@Tag(name = "Authentication", description = "Login  & logout")
 public class AuthController {
 
     private final AuthService authService;
@@ -25,4 +25,7 @@ public class AuthController {
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
+
+
+
 }

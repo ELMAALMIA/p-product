@@ -1,6 +1,6 @@
 package com.eTrust.product.repository;
 
-import com.eTrust.product.enums.InventoryStatus;
+import com.eTrust.product.model.InventoryStatus;
 import com.eTrust.product.model.Product;
 
 import java.util.List;

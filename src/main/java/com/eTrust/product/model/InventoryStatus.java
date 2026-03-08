@@ -1,4 +1,4 @@
-package com.eTrust.product.enums;
+package com.eTrust.product.model;
 
 public enum InventoryStatus {
     INSTOCK,

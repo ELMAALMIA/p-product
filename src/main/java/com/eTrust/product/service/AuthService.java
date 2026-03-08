@@ -5,4 +5,5 @@ import com.eTrust.product.dto.response.TokenResponse;
 
 public interface AuthService {
     TokenResponse login(LoginRequest request);
+    void logout(String token);
 }

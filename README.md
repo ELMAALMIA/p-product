@@ -1,6 +1,6 @@
 ## Product Service (Spring Boot 3)
 
-Product Management REST API built with **Spring Boot **, **JWT**, and **Spring Data JPA / MongoDB** using a clean layered architecture and common design patterns.
+Product Management REST API built with **Spring Boot**, **JWT**, and **Spring Data JPA** using a clean layered architecture and common design patterns.
 
 This service exposes endpoints to **authenticate**, then **create, read, update, and delete products**, with optional filtering by inventory status and category.
 
@@ -10,9 +10,7 @@ This service exposes endpoints to **authenticate**, then **create, read, update,
 
 - **Language**: Java 17  
 - **Framework**: Spring Boot 3.2.3  
-- **Persistence**:
-  - PostgreSQL via Spring Data JPA (`sql` profile)
-  - MongoDB via Spring Data MongoDB (`mongo` profile, via adapters)
+- **Persistence**: PostgreSQL via Spring Data JPA
 - **Security**: Spring Security + JWT 
 - **Documentation**: springdoc-openapi (Swagger UI)
 
@@ -93,71 +91,6 @@ The OpenAPI definition is also available at:
 ```text
 http://localhost:8080/api-docs
 ```
-
----
-
-## How to run (Mongo profile with MongoDB)
-
-### Option A — Local MongoDB (no Docker)
-
-1. **Start MongoDB** on your machine (default port `27017`) and create a database:
-
-```bash
-mongosh
-> use productdb
-```
-
-2. **Mongo profile configuration**
-
-`src/main/resources/application-mongo.properties`:
-
-```properties
-spring.data.mongodb.uri=mongodb://root:mongo123@localhost:27017/productdb?authSource=admin
-spring.data.mongodb.database=productdb
-spring.data.mongodb.auto-index-creation=true
-
-spring.autoconfigure.exclude=\
-  org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,\
-  org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,\
-  org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
-```
-
-Adjust `spring.data.mongodb.uri` if your local Mongo instance uses different credentials.
-
-3. **Run the application with `mongo` profile**
-
-```bash
-mvn spring-boot:run -Dspring-boot.run.profiles=mongo
-```
-
-or:
-
-```bash
-mvn clean package
-java -jar target/product-0.0.1-SNAPSHOT.jar --spring.profiles.active=mongo
-```
-
-### Option B — MongoDB with Docker
-
-1. **Start MongoDB + Mongo Express**
-
-From the project root:
-
-```bash
-docker compose up -d mongodb mongo-express
-```
-
-This will start:
-
-- **MongoDB** (`mongodb` service) with:
-  - Root user: `root`
-  - Root password: `mongo123`
-  - Default DB: `productdb`
-- **Mongo Express UI** on `http://localhost:8081` (user `admin` / password `admin123` by default).
-
-2. **Run the application with `mongo` profile**
-
-Use the same commands as above (Maven or jar). The URI in `application-mongo.properties` is already compatible with the Docker setup.
 
 ---
 

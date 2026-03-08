@@ -1,10 +1,9 @@
 package com.eTrust.product.repository.jpa;
 
 import com.eTrust.product.mapper.ProductEntityMapper;
-import com.eTrust.product.enums.InventoryStatus;
+import com.eTrust.product.model.InventoryStatus;
 import com.eTrust.product.model.Product;
 import com.eTrust.product.repository.ProductRepository;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,10 +12,8 @@ import java.util.stream.Collectors;
 
 /**
  * Adapter pattern — bridges domain ProductRepository with Spring Data JPA.
- * Active only when profile = "sql".
  */
 @Repository
-@Profile("sql")
 public class JpaProductRepositoryAdapter implements ProductRepository {
 
     private final SpringJpaProductRepository jpa;

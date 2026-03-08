@@ -2,7 +2,7 @@ package com.eTrust.product.service;
 
 import com.eTrust.product.dto.request.ProductRequest;
 import com.eTrust.product.dto.response.ProductResponse;
-import com.eTrust.product.enums.InventoryStatus;
+import com.eTrust.product.model.InventoryStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,5 +14,5 @@ public interface ProductService {
     List<ProductResponse> findAll(InventoryStatus status, String category);
     ProductResponse update(Long id, ProductRequest request);
     void delete(Long id);
-//    ProductResponse createWithFile(ProductRequest request, MultipartFile image) throws IOException;
+  ProductResponse createWithFile(ProductRequest request, MultipartFile image) throws IOException;
 }

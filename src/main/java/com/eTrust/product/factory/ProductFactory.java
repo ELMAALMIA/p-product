@@ -20,10 +20,9 @@ public class ProductFactory {
 
     public Product createFrom(ProductRequest request) {
         Product product = mapper.toDomain(request);
-        long now = Instant.now().getEpochSecond();
+
         product.setInternalReference("REF-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-        product.setCreatedAt(now);
-        product.setUpdatedAt(now);
+
         return product;
     }
 

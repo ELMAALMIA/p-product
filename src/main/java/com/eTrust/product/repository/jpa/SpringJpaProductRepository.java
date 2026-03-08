@@ -1,8 +1,7 @@
 package com.eTrust.product.repository.jpa;
 
-import com.eTrust.product.dao.ProductEntity;
-import com.eTrust.product.enums.InventoryStatus;
-import org.springframework.context.annotation.Profile;
+import com.eTrust.product.entity.ProductEntity;
+import com.eTrust.product.model.InventoryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-@Profile("sql")
 public interface SpringJpaProductRepository extends JpaRepository<ProductEntity, Long> {
 
     Optional<ProductEntity> findByCode(String code);
