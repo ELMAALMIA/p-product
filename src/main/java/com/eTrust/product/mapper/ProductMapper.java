@@ -33,8 +33,8 @@ public class ProductMapper {
                 e.getShellId(),
                 e.getInventoryStatus(),
                 e.getRating(),
-                e.getCreatedAt() != null ? e.getCreatedAt().toEpochMilli() : null,
-                e.getUpdatedAt() != null ? e.getUpdatedAt().toEpochMilli() : null
+                e.getCreatedAt(),
+                e.getUpdatedAt()
         );
     }
 

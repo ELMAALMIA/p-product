@@ -1,110 +1,119 @@
-## Product Service (Spring Boot 3)
+# Product Management API
 
-Product Management REST API built with **Spring Boot**, **JWT**, and **Spring Data JPA** using a clean layered architecture and common design patterns.
-
-This service exposes endpoints to **authenticate**, then **create, read, update, and delete products**, with optional filtering by inventory status and category.
+A RESTful API for product management built with **Spring Boot 3**, secured with **JWT authentication** (access + refresh tokens), and documented with **Swagger/OpenAPI**.
 
 ---
 
-## Tech stack
+## Table of Contents
 
-- **Language**: Java 17  
-- **Framework**: Spring Boot 3.2.3  
-- **Persistence**: PostgreSQL via Spring Data JPA
-- **Security**: Spring Security + JWT 
-- **Documentation**: springdoc-openapi (Swagger UI)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+- [API Documentation (Swagger)](#api-documentation-swagger)
+- [Authentication](#authentication)
+- [API Endpoints](#api-endpoints)
+- [Running Tests](#running-tests)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
 
 ---
 
-## How to run (SQL profile with PostgreSQL)
+## Tech Stack
 
-### Option A — Local PostgreSQL (no Docker)
+| Layer          | Technology                          |
+|----------------|-------------------------------------|
+| Language       | Java 17                             |
+| Framework      | Spring Boot 3.2.3                   |
+| Security       | Spring Security + JWT (jjwt 0.12.5) |
+| Database       | PostgreSQL 16                       |
+| ORM            | Spring Data JPA / Hibernate         |
+| Testing        | JUnit 5, Mockito, H2 (in-memory)   |
+| Documentation  | springdoc-openapi (Swagger UI)      |
+| Email          | Spring Mail (SMTP)                  |
+| Containerization | Docker, Docker Compose            |
 
-1. **Create database**
+---
+
+## Architecture
+
+```
+├── controller/        # REST controllers
+├── service/           # Business logic 
+├── repository/        # Spring Data JPA repositories
+├── entity/            # JPA entities 
+├── dto/               # Request/Response DTOs 
+├── mapper/            # Entity <-> DTO mapping 
+├── security/          # JWT filter, JWT service, UserDetails config
+├── config/            # Security, OpenAPI, JPA Auditing, ModelMapper, Email
+├── event/             # Domain events 
+├── exception/         # Global exception handler, custom exceptions
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Java 17+
+- Maven 3.8+
+- PostgreSQL 16 (or Docker)
+
+### Option A — Docker (recommended)
+
+```bash
+docker compose up -d
+```
+
+This starts:
+- **PostgreSQL** on port `5432` (db: `productdb`, user: `postgres`, password: `postgres123`)
+- **pgAdmin** on port `5050` (email: `admin@admin.com`, password: `admin123`)
+
+Then run the app:
+
+```bash
+mvn spring-boot:run
+```
+
+### Option B — Local PostgreSQL
+
+1. Create the database:
 
 ```sql
 CREATE DATABASE productdb;
 ```
 
-2. **Configure PostgreSQL connection**
-
-`src/main/resources/application-sql.properties` (already provided):
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/productdb
-spring.datasource.username=postgres
-spring.datasource.password=postgres123
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-spring.jpa.hibernate.ddl-auto=create-drop
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.open-in-view=false
-```
-
-3. **Enable the `sql` profile**
-
-Run with Maven:
+2. Run the application:
 
 ```bash
-mvn spring-boot:run -Dspring-boot.run.profiles=sql
+mvn spring-boot:run
 ```
 
-or with the jar:
-
-```bash
-mvn clean package
-java -jar target/product-0.0.1-SNAPSHOT.jar --spring.profiles.active=sql
-```
-
-### Option B — PostgreSQL with Docker
-
-1. **Start PostgreSQL container**
-
-From the project root:
-
-```bash
-docker compose up -d postgres
-```
-
-This will start a Postgres 16 container with:
-
-- **Database**: `productdb`
-- **User**: `postgres`
-- **Password**: `postgres123`
-- **Port**: `5432` (mapped to localhost)
-
-2. **Run the application with `sql` profile**
-
-Use the same commands as above (Maven or jar) — the JDBC URL in `application-sql.properties` already points to `localhost:5432/productdb`.
-
-### Open Swagger UI
-
-Once started, open:
-
-```text
-http://localhost:8080/swagger-ui/index.html
-```
-
-The OpenAPI definition is also available at:
-
-```text
-http://localhost:8080/api-docs
-```
+The app starts on **port 8088** by default.
 
 ---
 
-## Authentication & security
+## API Documentation (Swagger)
 
-- Authentication is **stateless** and uses **JWT bearer tokens**.
-- Public endpoints:
-  - `/api/v1/auth/**`
-  - Swagger/OpenAPI: `/swagger-ui/**`, `/swagger-ui.html`, `/api-docs/**`
-- All other endpoints require a valid `Authorization: Bearer <token>` header.
+Once the application is running, access the interactive API documentation:
 
-### Login flow
+| Resource       | URL                                                        |
+|----------------|------------------------------------------------------------|
+| **Swagger UI** | [http://localhost:8088/swagger-ui/index.html](http://localhost:8088/swagger-ui/index.html) |
+| **OpenAPI JSON** | [http://localhost:8088/api-docs](http://localhost:8088/api-docs) |
 
-1. **Login**:
+### Swagger UI Preview
+
+
+![Swagger UI](docs/swagger-ui.png)
+
+---
+
+## Authentication
+
+The API uses **stateless JWT** authentication with a **short-lived access token + refresh token** pattern.
+
+### Login
 
 ```http
 POST /api/v1/auth/login
@@ -116,56 +125,92 @@ Content-Type: application/json
 }
 ```
 
-2. **Response**:
+**Response:**
 
 ```json
 {
-  "token": "<jwt-token>",
-  "expiresIn": 3600000
+  "accessToken": "<jwt>",
+  "refreshToken": "<uuid>",
+  "type": "Bearer",
+  "expiresIn": 300000
 }
 ```
 
-3. **Use token** in protected endpoints:
+### Using the token
+
+Add the access token to all protected requests:
+
+```
+Authorization: Bearer <accessToken>
+```
+
+### Refresh token
+
+When the access token expires, use the refresh token to get a new pair:
 
 ```http
-Authorization: Bearer <jwt-token>
+POST /api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "<uuid>"
+}
 ```
 
-JWT settings (expected) in properties:
+### Logout
 
-```properties
-jwt.secret=BASE64_ENCODED_SECRET_KEY
-jwt.expiration=3600000
+Invalidates the refresh token:
+
+```http
+POST /api/v1/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "<uuid>"
+}
 ```
 
-> The secret must be a Base64-encoded string long enough for HMAC-SHA key creation.
+### Public endpoints (no auth required)
+
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/refresh`
+- `GET /swagger-ui/**`
+- `GET /api-docs/**`
 
 ---
 
-## Main endpoints
+## API Endpoints
 
-### Products (`/api/v1/products`)
+### Products — `/api/v1/products`
 
-All product endpoints require authentication.
+All product endpoints require a valid `Authorization: Bearer <token>` header.
 
-- **Create product**
+| Method   | Endpoint                | Description                        |
+|----------|-------------------------|------------------------------------|
+| `POST`   | `/api/v1/products`      | Create a product (JSON body)       |
+| `POST`   | `/api/v1/products/v2`   | Create a product with image upload |
+| `GET`    | `/api/v1/products`      | List all products (with filters)   |
+| `GET`    | `/api/v1/products/{id}` | Get a product by ID                |
+| `PUT`    | `/api/v1/products/{id}` | Update a product                   |
+| `DELETE` | `/api/v1/products/{id}` | Delete a product                   |
 
-```http
-POST /api/v1/products
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+**Query filters** on `GET /api/v1/products`:
 
-Body (simplified):
+| Parameter         | Type   | Description                              |
+|-------------------|--------|------------------------------------------|
+| `inventoryStatus` | string | Filter by status: `INSTOCK`, `LOWSTOCK`, `OUTOFSTOCK` |
+| `category`        | string | Filter by category name                  |
+
+**Product request body:**
 
 ```json
 {
-  "code": "P-001",
-  "name": "Laptop",
-  "description": "High-end laptop",
-  "image": "data:image/png;base64,....",
-  "category": "ELECTRONICS",
-  "price": 1500.0,
+  "code": "PROD001",
+  "name": "iPhone 15 Pro",
+  "description": "Latest Apple smartphone",
+  "image": "data:image/png;base64,...",
+  "category": "Electronics",
+  "price": 999.99,
   "quantity": 10,
   "shellId": 1,
   "inventoryStatus": "INSTOCK",
@@ -173,60 +218,75 @@ Body (simplified):
 }
 ```
 
-- **Get all products** (optional filters):
+**Product response:**
 
-```http
-GET /api/v1/products?inventoryStatus=INSTOCK&category=ELECTRONICS
-Authorization: Bearer <token>
+```json
+{
+  "id": 1,
+  "code": "PROD001",
+  "name": "iPhone 15 Pro",
+  "description": "Latest Apple smartphone",
+  "image": "data:image/png;base64,...",
+  "category": "Electronics",
+  "price": 999.99,
+  "quantity": 10,
+  "internalReference": "REF-A1B2C3D4",
+  "shellId": 1,
+  "inventoryStatus": "INSTOCK",
+  "rating": 4.5,
+  "createdAt": "2026-03-08T21:30:00Z",
+  "updatedAt": "2026-03-08T21:30:00Z"
+}
 ```
 
-Both `inventoryStatus` and `category` are optional query params.
+### Auth — `/api/v1/auth`
 
-- **Get by id**
-
-```http
-GET /api/v1/products/{id}
-Authorization: Bearer <token>
-```
-
-- **Update**
-
-```http
-PUT /api/v1/products/{id}
-Authorization: Bearer <token>
-```
-
-Body is the same shape as the create request.
-
-- **Delete**
-
-```http
-DELETE /api/v1/products/{id}
-Authorization: Bearer <token>
-```
+| Method | Endpoint              | Description                  | Auth required |
+|--------|-----------------------|------------------------------|---------------|
+| `POST` | `/api/v1/auth/login`  | Login and get token pair     | No            |
+| `POST` | `/api/v1/auth/refresh`| Refresh access token         | No            |
+| `POST` | `/api/v1/auth/logout` | Invalidate refresh token     | No            |
 
 ---
 
+## Running Tests
 
+The project includes **47 tests** covering unit and integration layers:
 
-## Running tests
-
-Currently there are no automated tests. You can start by adding:
-
-- Unit tests for:
-  - `ProductServiceImpl`
-  - `ValidatedProductService`
-  - `JwtService`
-- Web tests for controllers using `spring-boot-starter-test` and `spring-security-test`.
-
-Run all tests:
+| Test class                   | Type        | Count | Description                          |
+|------------------------------|-------------|-------|--------------------------------------|
+| `ProductControllerTest`      | Unit        | 10    | Controller layer with `@WebMvcTest`  |
+| `ProductServiceImplTest`     | Unit        | 12    | Service layer with Mockito           |
+| `ProductRepositoryTest`      | Unit        | 9     | Repository layer with `@DataJpaTest` |
+| `ProductIntegrationTest`     | Integration | 10    | Full stack product CRUD              |
+| `AuthIntegrationTest`        | Integration | 6     | Auth flow (login, refresh, logout)   |
 
 ```bash
-mvn test
+# Run all tests
+mvn clean test
+
+# Run only unit tests
+mvn test -Dtest="*Unit*,*Controller*,*Service*,*Repository*"
+
+# Run only integration tests
+mvn test -Dtest="*Integration*"
 ```
+
+Tests use **H2 in-memory database** and a separate `application-test.properties` profile.
 
 ---
 
+---
 
-```
+## Environment Variables
 
+All variables have defaults for local development. Override them for production:
+
+| Variable                 | Default                            | Description                |
+|--------------------------|------------------------------------|----------------------------|
+| `SPRING_DATASOURCE_URL`  | `jdbc:postgresql://localhost:5432/productdb` | JDBC connection URL |
+| `SPRING_DATASOURCE_USERNAME` | `postgres`                     | Database username          |
+| `SPRING_DATASOURCE_PASSWORD` | `postgres123`                  | Database password          |
+| `JWT_SECRET`             | *(dev key)*                        | Base64-encoded HMAC key    |
+| `JWT_EXPIRATION`         | `300000` (5 min)                   | Access token TTL (ms)      |
+| `JWT_REFRESH_EXPIRATION` | `604800000` (7 days)               | Refresh token TTL (ms)     | 

@@ -4,6 +4,6 @@ package com.eTrust.product.service;
 
 public interface EmailService {
     void sendNotification(String to, String subject, String body);
-    void sendProductCreatedNotification(String productName, String code);
-    void sendProductDeletedNotification(Long productId);
+    void sendProductCreatedNotification(String to, String productName, String code);
+    void sendProductDeletedNotification(String to, Long productId);
 }

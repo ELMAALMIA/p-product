@@ -3,7 +3,6 @@ package com.eTrust.product.service.impl;
 import com.eTrust.product.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -19,20 +18,15 @@ public class EmailServiceImpl implements EmailService {
     private static final String BODY_DELETED     = "Product with id=%d has been deleted.";
 
     private final JavaMailSender mailSender;
-    private final SimpleMailMessage emailTemplate;
 
-    @Value("${app.notification.recipient}")
-    private String notificationRecipient;
-
-    public EmailServiceImpl(JavaMailSender mailSender, SimpleMailMessage emailTemplate) {
+    public EmailServiceImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
-        this.emailTemplate = emailTemplate;
     }
 
     @Override
     public void sendNotification(String to, String subject, String body) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage(emailTemplate);
+            SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
@@ -44,20 +38,12 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendProductCreatedNotification(String productName, String code) {
-        sendNotification(
-                notificationRecipient,
-                SUBJECT_CREATED,
-                String.format(BODY_CREATED, productName, code)
-        );
+    public void sendProductCreatedNotification(String to, String productName, String code) {
+        sendNotification(to, SUBJECT_CREATED, String.format(BODY_CREATED, productName, code));
     }
 
     @Override
-    public void sendProductDeletedNotification(Long productId) {
-        sendNotification(
-                notificationRecipient,
-                SUBJECT_DELETED,
-                String.format(BODY_DELETED, productId)
-        );
+    public void sendProductDeletedNotification(String to, Long productId) {
+        sendNotification(to, SUBJECT_DELETED, String.format(BODY_DELETED, productId));
     }
 }

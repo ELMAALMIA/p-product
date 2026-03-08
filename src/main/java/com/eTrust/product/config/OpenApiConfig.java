@@ -17,7 +17,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Product Management API")
-                        .description("Product Management API ; Credentials: admin/admin123")
+                        .description("Product Management API ")
                         .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList(scheme))
                 .components(new Components().addSecuritySchemes(scheme,

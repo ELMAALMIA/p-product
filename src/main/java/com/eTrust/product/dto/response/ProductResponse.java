@@ -2,6 +2,8 @@ package com.eTrust.product.dto.response;
 
 import com.eTrust.product.entity.InventoryStatus;
 
+import java.time.Instant;
+
 public record ProductResponse(
         Long id,
         String code,
@@ -15,6 +17,6 @@ public record ProductResponse(
         Long shellId,
         InventoryStatus inventoryStatus,
         Double rating,
-        Long createdAt,
-        Long updatedAt
+        Instant createdAt,
+        Instant updatedAt
 ) {}

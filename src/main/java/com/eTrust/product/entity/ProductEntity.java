@@ -30,8 +30,8 @@ public class ProductEntity extends BaseAuditableEntity{
     @Column(columnDefinition = "TEXT", nullable = false)
     private String image;
 
- @Column(nullable = false, length = 255)
-private String category;
+    @Column(nullable = false, length = 255)
+    private String category;
  
     @Column(nullable = false)
     private Double price;

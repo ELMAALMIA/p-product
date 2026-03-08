@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 @Service
-@Primary
 public class ProductServiceImpl implements ProductService {
 
     private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
@@ -48,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity entity = mapper.toEntity(request);
         entity.setInternalReference(generateReference());
         ProductEntity saved = repository.save(entity);
-        eventPublisher.publishEvent(new ProductCreatedEvent(this, saved));
+        eventPublisher.publishEvent(new ProductCreatedEvent(this, saved, getCurrentUserEmail()));
         log.info("Product created id={}", saved.getId());
         return mapper.toResponse(saved);
     }
@@ -84,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Long id) {
         if (!repository.existsById(id)) throw new ResourceNotFoundException("Product", id);
         repository.deleteById(id);
-        eventPublisher.publishEvent(new ProductDeletedEvent(this, id));
+        eventPublisher.publishEvent(new ProductDeletedEvent(this, id, getCurrentUserEmail()));
         log.info("Product deleted id={}", id);
     }
 
@@ -99,8 +99,13 @@ public class ProductServiceImpl implements ProductService {
         entity.setImage(base64);
         entity.setInternalReference(generateReference());
         ProductEntity saved = repository.save(entity);
-        eventPublisher.publishEvent(new ProductCreatedEvent(this, saved));
+        eventPublisher.publishEvent(new ProductCreatedEvent(this, saved, getCurrentUserEmail()));
         return mapper.toResponse(saved);
+    }
+
+    private String getCurrentUserEmail() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return username + "@gmail.com";
     }
 
     private String generateReference() {

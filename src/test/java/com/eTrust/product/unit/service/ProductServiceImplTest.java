@@ -16,14 +16,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplTest {
@@ -41,6 +47,9 @@ class ProductServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("admin", null, List.of()));
+
         entity = new ProductEntity();
         entity.setId(1L);
         entity.setCode("PROD001");
@@ -66,7 +75,7 @@ class ProductServiceImplTest {
                 "data:image/png;base64,abc", "Electronics",
                 999.99, 10, "REF-ABC12345", 1L,
                 InventoryStatus.INSTOCK, 4.5,
-                Instant.now().toEpochMilli(), Instant.now().toEpochMilli()
+                Instant.now(), Instant.now()
         );
     }
 

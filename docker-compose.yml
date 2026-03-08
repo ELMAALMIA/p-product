@@ -1,19 +1,15 @@
 version: '3.9'
 
-# ─── Networks ─────────────────────────────────────────────────────────────────
+
 networks:
   product-network:
     driver: bridge
 
-# ─── Volumes ──────────────────────────────────────────────────────────────────
 volumes:
   postgres-data:
   pgadmin-data:
 
-# ─── Services ─────────────────────────────────────────────────────────────────
 services:
-
-  # ── PostgreSQL ──────────────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
     container_name: product-postgres
@@ -35,7 +31,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── pgAdmin — PostgreSQL UI ─────────────────────────────────────────────────
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: product-pgadmin

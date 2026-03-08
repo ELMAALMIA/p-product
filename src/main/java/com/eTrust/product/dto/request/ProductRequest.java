@@ -1,7 +1,13 @@
 package com.eTrust.product.dto.request;
 
 import com.eTrust.product.entity.InventoryStatus;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 
 
 public record ProductRequest(
@@ -18,9 +24,6 @@ public record ProductRequest(
 
         String description,
 
-        // Not @NotBlank here: the multipart /v2 endpoint sends the image as a separate
-        // file part (so this field is null in the JSON). Validation is enforced in
-        // ValidatedProductService per endpoint.
         String image,
 
         @NotBlank(message = "Category is mandatory")
